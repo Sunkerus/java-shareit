@@ -1,5 +1,6 @@
-package ru.practicum.shareit.user;
-import  ru.practicum.shareit.user.dto.*;
+package ru.practicum.shareit.user.interfaces;
+
+import ru.practicum.shareit.user.dto.*;
 
 import java.util.List;
 
@@ -14,7 +15,6 @@ public interface UserService {
     UserDto getUserById(Integer userId);
 
     List<UserDto> getAllUsers();
-
 
 
 }

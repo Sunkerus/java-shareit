@@ -1,15 +1,17 @@
 package ru.practicum.shareit.user.impl;
 
 import lombok.RequiredArgsConstructor;
+import ru.practicum.shareit.exceptions.NotFoundException;
 import ru.practicum.shareit.user.User;
 import org.springframework.stereotype.Service;
-import ru.practicum.shareit.exceptions.existDataException;
-import ru.practicum.shareit.user.UserService;
-import ru.practicum.shareit.user.UserStorage;
+import ru.practicum.shareit.exceptions.ExistDataException;
+import ru.practicum.shareit.user.interfaces.UserService;
+import ru.practicum.shareit.user.interfaces.UserStorage;
 import ru.practicum.shareit.user.dto.UserDto;
 import ru.practicum.shareit.user.dto.UserMapper;
 
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 @Service
@@ -17,12 +19,6 @@ import java.util.stream.Collectors;
 public class UserServiceImpl implements UserService {
 
     private final UserStorage userStorage;
-
-    /**
-     * creating user
-     * @param user object UserDto
-     * @return create and returns UserDto Object
-     */
 
     @Override
     public UserDto createUser(UserDto user) {
@@ -32,8 +28,8 @@ public class UserServiceImpl implements UserService {
                 .stream()
                 .anyMatch(u -> u.getEmail().equals(user.getEmail()));
 
-        if (isExist){
-            throw new existDataException("User with this email: " + user.getEmail() + " is exist");
+        if (isExist) {
+            throw new ExistDataException("User with this email: " + user.getEmail() + " is exist");
         }
         return UserMapper.toDto(userStorage.saveUser(UserMapper.toUser(user)));
     }
@@ -43,18 +39,17 @@ public class UserServiceImpl implements UserService {
 
         User user = userStorage.getByIdUser(userId)
                 .orElseThrow(
-                        () -> new RuntimeException("Пользователь не найден")
+                        () -> new NotFoundException("Пользователь " + userId + "не найден")
                 );
 
-
-        boolean isExist = userStorage
-                .getAllUsers()
+        boolean isReplicatedEmail = userStorage.getAllUsers()
                 .stream()
-                .anyMatch(u -> u.getEmail().equals(userDto.getEmail()));
+                .anyMatch(u -> u.getEmail().equals(userDto.getEmail()) && !Objects.equals(u.getId(), userId));
 
-        if (isExist) {
-            throw new existDataException("User with this email: " + userDto.getEmail() + " is exist");
+        if (isReplicatedEmail) {
+            throw new ExistDataException("User with this email: " + userDto.getEmail() + " is exist");
         }
+
 
         if (userDto.getEmail() != null) {
             user.setEmail(userDto.getEmail());
@@ -75,7 +70,7 @@ public class UserServiceImpl implements UserService {
     @Override
     public UserDto getUserById(Integer userId) {
         return UserMapper.toDto(userStorage.getByIdUser(userId)
-                .orElseThrow(() -> new RuntimeException("Пользователь не найден")));
+                .orElseThrow(() -> new NotFoundException("Пользователь " + userId + "не найден")));
     }
 
     @Override

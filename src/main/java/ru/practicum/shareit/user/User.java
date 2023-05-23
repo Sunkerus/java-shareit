@@ -10,11 +10,11 @@ import javax.validation.constraints.NotBlank;
 @AllArgsConstructor
 public class User {
 
-        private Integer id;
+    private Integer id;
 
-        private String name;
+    private String name;
 
-        @Email(message = "Email not correct. Please enter correct email.")
-        @NotBlank(message = "Email can't be empty. Please enter correct email.")
-        private String email;
+    @Email(message = "Email not correct. Please enter correct email.")
+    @NotBlank(message = "Email can't be empty. Please enter correct email.")
+    private String email;
 }

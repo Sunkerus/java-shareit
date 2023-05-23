@@ -1,4 +1,6 @@
-package ru.practicum.shareit.user;
+package ru.practicum.shareit.user.interfaces;
+
+import ru.practicum.shareit.user.User;
 
 import java.util.List;
 import java.util.Optional;
@@ -14,7 +16,6 @@ public interface UserStorage {
     Optional<User> getByIdUser(Integer id);
 
     List<User> getAllUsers();
-
 
 
 }

@@ -2,7 +2,7 @@ package ru.practicum.shareit.user.impl;
 
 import org.springframework.stereotype.Repository;
 import ru.practicum.shareit.user.User;
-import ru.practicum.shareit.user.UserStorage;
+import ru.practicum.shareit.user.interfaces.UserStorage;
 
 import java.util.*;
 
@@ -16,13 +16,13 @@ public class UserStorageImpl implements UserStorage {
     @Override
     public User saveUser(User user) {
         user.setId(id++);
-        users.put(user.getId(),user);
+        users.put(user.getId(), user);
         return user;
     }
 
     @Override
     public User updateUser(User user) {
-        users.put(user.getId(),user);
+        users.put(user.getId(), user);
         return users.get(user.getId());
     }
 
