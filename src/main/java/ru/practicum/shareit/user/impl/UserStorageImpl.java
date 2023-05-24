@@ -43,6 +43,7 @@ public class UserStorageImpl implements UserStorage {
         storage.remove(id);
     }
 
+    @Override
     public boolean existByEmail(String email) {
         return storage.values()
                 .stream()
