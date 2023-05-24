@@ -5,7 +5,6 @@ import ru.practicum.shareit.user.User;
 import ru.practicum.shareit.user.interfaces.UserStorage;
 
 import java.util.*;
-import java.util.stream.Collectors;
 
 @Repository
 public class UserStorageImpl implements UserStorage {
