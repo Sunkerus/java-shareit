@@ -1,9 +1,7 @@
 package ru.practicum.shareit.request.impl;
 
-
-import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
-import org.springframework.stereotype.Service;
+
 import ru.practicum.shareit.request.ItemRequest;
 import ru.practicum.shareit.request.interfaces.ItemRequestStorage;
 
