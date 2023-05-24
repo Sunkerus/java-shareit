@@ -23,30 +23,24 @@ public class UserServiceImpl implements UserService {
     @Override
     public UserDto createUser(UserDto user) {
 
-        boolean isExist = userStorage
-                .getAllUsers()
-                .stream()
-                .anyMatch(u -> u.getEmail().equals(user.getEmail()));
-
-        if (isExist) {
+        if (userStorage.existByEmail(user.getEmail())) {
             throw new ExistDataException("User with this email: " + user.getEmail() + " is exist");
         }
         return UserMapper.toDto(userStorage.saveUser(UserMapper.toUser(user)));
     }
 
     @Override
-    public UserDto updateUser(UserDto userDto, Integer userId) {
+    public UserDto updateUser(UserDto userDto, Long userId) {
 
         User user = userStorage.getByIdUser(userId)
                 .orElseThrow(
-                        () -> new NotFoundException("Пользователь " + userId + "не найден")
+                        () -> new NotFoundException("User:" + userId + " not found")
                 );
 
-        boolean isReplicatedEmail = userStorage.getAllUsers()
-                .stream()
+        boolean isReplicated  = userStorage.getAllUsers().stream()
                 .anyMatch(u -> u.getEmail().equals(userDto.getEmail()) && !Objects.equals(u.getId(), userId));
 
-        if (isReplicatedEmail) {
+        if (isReplicated) {
             throw new ExistDataException("User with this email: " + userDto.getEmail() + " is exist");
         }
 
@@ -63,12 +57,12 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public void deleteUser(Integer userId) {
+    public void deleteUser(Long userId) {
         userStorage.deleteByIdUser(userId);
     }
 
     @Override
-    public UserDto getUserById(Integer userId) {
+    public UserDto getUserById(Long userId) {
         return UserMapper.toDto(userStorage.getByIdUser(userId)
                 .orElseThrow(() -> new NotFoundException("Пользователь " + userId + "не найден")));
     }

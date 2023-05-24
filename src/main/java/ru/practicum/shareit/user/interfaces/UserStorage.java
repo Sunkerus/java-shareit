@@ -9,13 +9,14 @@ public interface UserStorage {
 
     User saveUser(User user);
 
-    void deleteByIdUser(Integer id);
+    void deleteByIdUser(Long id);
 
     User updateUser(User user);
 
-    Optional<User> getByIdUser(Integer id);
+    Optional<User> getByIdUser(Long id);
 
     List<User> getAllUsers();
 
+    boolean existByEmail(String email);
 
 }

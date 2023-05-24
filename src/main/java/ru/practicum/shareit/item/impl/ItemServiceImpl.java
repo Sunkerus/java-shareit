@@ -9,10 +9,9 @@ import ru.practicum.shareit.item.interfaces.ItemStorage;
 import ru.practicum.shareit.item.dto.ItemDto;
 import ru.practicum.shareit.item.dto.ItemMapper;
 import ru.practicum.shareit.item.model.Item;
-import ru.practicum.shareit.user.interfaces.UserService;
+import ru.practicum.shareit.user.interfaces.UserStorage;
 
 import java.util.List;
-import java.util.Objects;
 import java.util.stream.Collectors;
 
 @Service
@@ -21,28 +20,27 @@ public class ItemServiceImpl implements ItemService {
 
     private final ItemStorage itemStorage;
 
-    private final UserService userService;
+    private final UserStorage userStorage;
 
     @Override
-    public ItemDto addNewItem(Integer userId, ItemDto itemDto) throws IncorrectDataException {
-        checkId(userId);
-        userService.getUserById(userId);
+    public ItemDto addNewItem(Long userId, ItemDto itemDto) throws IncorrectDataException {
 
         Item item = ItemMapper.toItem(itemDto);
-        item.setOwner(userId);
+        item.setOwner(userStorage.getByIdUser(userId).orElseThrow(
+                        () -> new NotFoundException("User with this id didn't find ")
+                )
+        );
 
         return ItemMapper.toDto(itemStorage.save(item));
     }
 
     @Override
-    public ItemDto updateItem(Integer userId, Integer itemId, ItemDto itemDto) throws IncorrectDataException {
-        checkId(userId);
-        userService.getUserById(userId);
+    public ItemDto updateItem(Long userId, Long itemId, ItemDto itemDto) throws IncorrectDataException {
 
         Item item = itemStorage.getById(itemId);
 
-        if (!item.getOwner().equals(userId)) {
-            throw new NotFoundException("Item with that id coudn't found");
+        if (!item.getOwner().getId().equals(userId)) {
+            throw new NotFoundException("Owner with that id does not meet the requirements");
         }
 
         if (itemDto.getName() != null) {
@@ -62,17 +60,13 @@ public class ItemServiceImpl implements ItemService {
     }
 
     @Override
-    public ItemDto getItemById(Integer id) {
+    public ItemDto getItemById(Long id) {
         return ItemMapper.toDto(itemStorage.getById(id));
     }
 
     @Override
-    public List<ItemDto> getItemByUserId(Integer userId) {
-        return itemStorage.getAll()
-                .stream()
-                .filter(item -> Objects.equals(item.getOwner(), userId))
-                .map(ItemMapper::toDto)
-                .collect(Collectors.toList());
+    public List<ItemDto> getItemByUserId(Long userId) {
+        return itemStorage.getItemByUser(userId);
     }
 
     @Override
@@ -81,20 +75,17 @@ public class ItemServiceImpl implements ItemService {
             return List.of();
         }
 
+        String textC = text.toLowerCase();
+
         return itemStorage.getAll()
-                .stream()
                 .filter(Item::getAvailable)
-                .filter(item -> item.getName().toLowerCase().contains(text.toLowerCase())
-                        || item.getDescription().toLowerCase().contains(text.toLowerCase()))
+                .filter(item -> item.getName().toLowerCase().contains(textC)
+                        || item.getDescription().toLowerCase().contains(textC))
                 .map(ItemMapper::toDto)
                 .collect(Collectors.toList());
 
     }
 
-    private void checkId(Integer userId) {
-        if (userId == null) {
-            throw new IncorrectDataException("id of user is null");
-        }
-    }
+
 }
 

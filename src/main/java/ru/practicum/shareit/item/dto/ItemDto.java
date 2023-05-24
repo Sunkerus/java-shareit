@@ -10,7 +10,7 @@ import javax.validation.constraints.NotNull;
 @AllArgsConstructor
 public class ItemDto {
 
-    private Integer id;
+    private Long id;
 
     @NotBlank(message = "Name couldn't be blank")
     private String name;
@@ -21,5 +21,5 @@ public class ItemDto {
     @NotNull(message = "Aviable status couldn't be null")
     private Boolean available;
 
-    private Integer requestId;
+    private Long requestId;
 }

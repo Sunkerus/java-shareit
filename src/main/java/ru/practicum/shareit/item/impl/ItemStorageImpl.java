@@ -1,6 +1,8 @@
 package ru.practicum.shareit.item.impl;
 
 import org.springframework.stereotype.Repository;
+import ru.practicum.shareit.item.dto.ItemDto;
+import ru.practicum.shareit.item.dto.ItemMapper;
 import ru.practicum.shareit.item.interfaces.ItemStorage;
 import ru.practicum.shareit.item.model.Item;
 
@@ -8,13 +10,15 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 @Repository
 public class ItemStorageImpl implements ItemStorage {
 
-    private Integer id = 1;
+    private Long id = 1L;
 
-    private final Map<Integer, Item> storage = new HashMap<>();
+    private final Map<Long, Item> storage = new HashMap<>();
 
     @Override
     public Item save(Item item) {
@@ -25,18 +29,28 @@ public class ItemStorageImpl implements ItemStorage {
 
     @Override
     public Item update(Item item) {
-        Integer id = item.getId();
+        Long id = item.getId();
         storage.put(id, item);
         return storage.get(id);
     }
 
     @Override
-    public Item getById(Integer id) {
+    public Item getById(Long id) {
         return storage.get(id);
     }
 
     @Override
-    public List<Item> getAll() {
-        return new ArrayList<>(storage.values());
+    public Stream<Item> getAll() {
+        return storage.values().stream();
+    }
+
+    @Override
+    public List<ItemDto> getItemByUser(Long userId) {
+        return storage
+                .values()
+                .stream()
+                .filter(item -> item.getOwner().getId().equals(userId))
+                .map(ItemMapper::toDto)
+                .collect(Collectors.toList());
     }
 }

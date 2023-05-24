@@ -1,8 +1,10 @@
 package ru.practicum.shareit.item.interfaces;
 
+import ru.practicum.shareit.item.dto.ItemDto;
 import ru.practicum.shareit.item.model.Item;
 
 import java.util.List;
+import java.util.stream.Stream;
 
 public interface ItemStorage {
 
@@ -10,9 +12,9 @@ public interface ItemStorage {
 
     Item update(Item item);
 
-    Item getById(Integer id);
+    Item getById(Long id);
 
-    List<Item> getAll();
+    Stream<Item> getAll();
 
-
+    List<ItemDto> getItemByUser(Long userId);
 }

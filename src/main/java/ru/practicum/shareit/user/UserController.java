@@ -22,12 +22,12 @@ public class UserController {
     }
 
     @PatchMapping("/{userId}")
-    public UserDto updateUser(@RequestBody UserDto userDto, @PathVariable Integer userId) {
+    public UserDto updateUser(@RequestBody UserDto userDto, @PathVariable Long userId) {
         return userService.updateUser(userDto, userId);
     }
 
     @GetMapping("/{userId}")
-    public UserDto getUserById(@PathVariable Integer userId) {
+    public UserDto getUserById(@PathVariable Long userId) {
         return userService.getUserById(userId);
     }
 
@@ -38,7 +38,7 @@ public class UserController {
 
 
     @DeleteMapping("/{userId}")
-    public void deleteUserById(@PathVariable Integer userId) {
+    public void deleteUserById(@PathVariable Long userId) {
         userService.deleteUser(userId);
     }
 

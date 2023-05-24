@@ -10,8 +10,7 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 public class ItemRequest {
 
-
-    private Integer id;
+    private Long id;
 
     private String description;
 
