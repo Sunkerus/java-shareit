@@ -37,7 +37,7 @@ public class UserServiceImpl implements UserService {
                         () -> new NotFoundException("User:" + userId + " not found")
                 );
 
-        Optional<User> opTest= userStorage.getByEmail(userDto.getEmail());
+        Optional<User> opTest = userStorage.getByEmail(userDto.getEmail());
 
         boolean isReplicated = opTest.isPresent() &&
                 !opTest.orElseThrow(() -> new NotFoundException("User with email: " + userDto.getEmail() + "not found"))
