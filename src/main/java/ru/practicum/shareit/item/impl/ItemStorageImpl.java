@@ -6,7 +6,6 @@ import ru.practicum.shareit.item.dto.ItemMapper;
 import ru.practicum.shareit.item.interfaces.ItemStorage;
 import ru.practicum.shareit.item.model.Item;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;

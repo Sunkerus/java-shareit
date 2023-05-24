@@ -37,7 +37,7 @@ public class UserServiceImpl implements UserService {
                         () -> new NotFoundException("User:" + userId + " not found")
                 );
 
-        boolean isReplicated  = userStorage.getAllUsers().stream()
+        boolean isReplicated = userStorage.getAllUsers().stream()
                 .anyMatch(u -> u.getEmail().equals(userDto.getEmail()) && !Objects.equals(u.getId(), userId));
 
         if (isReplicated) {
