@@ -44,12 +44,11 @@ public class UserStorageImpl implements UserStorage {
     }
 
     @Override
-    public boolean existByEmail(String email) {
+    public Optional<User> getByEmail(String email) {
         return storage.values()
                 .stream()
-                .map(User::getEmail)
-                .collect(Collectors.toSet())
-                .contains(email);
+                .filter(user -> user.getEmail().equals(email))
+                .findFirst();
     }
 
 

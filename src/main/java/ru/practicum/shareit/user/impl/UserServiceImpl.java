@@ -11,7 +11,7 @@ import ru.practicum.shareit.user.dto.UserDto;
 import ru.practicum.shareit.user.dto.UserMapper;
 
 import java.util.List;
-import java.util.Objects;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
@@ -23,7 +23,7 @@ public class UserServiceImpl implements UserService {
     @Override
     public UserDto createUser(UserDto user) {
 
-        if (userStorage.existByEmail(user.getEmail())) {
+        if (userStorage.getByEmail(user.getEmail()).isPresent()) {
             throw new ExistDataException("User with this email: " + user.getEmail() + " is exist");
         }
         return UserMapper.toDto(userStorage.saveUser(UserMapper.toUser(user)));
@@ -37,8 +37,12 @@ public class UserServiceImpl implements UserService {
                         () -> new NotFoundException("User:" + userId + " not found")
                 );
 
-        boolean isReplicated = userStorage.getAllUsers().stream()
-                .anyMatch(u -> u.getEmail().equals(userDto.getEmail()) && !Objects.equals(u.getId(), userId));
+        Optional<User> opTest= userStorage.getByEmail(userDto.getEmail());
+
+        boolean isReplicated = opTest.isPresent() &&
+                !opTest.orElseThrow(() -> new NotFoundException("User with email: " + userDto.getEmail() + "not found"))
+                        .getId()
+                        .equals(userId);
 
         if (isReplicated) {
             throw new ExistDataException("User with this email: " + userDto.getEmail() + " is exist");

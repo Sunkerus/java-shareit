@@ -17,6 +17,6 @@ public interface UserStorage {
 
     List<User> getAllUsers();
 
-    boolean existByEmail(String email);
+    Optional<User> getByEmail(String email);
 
 }
