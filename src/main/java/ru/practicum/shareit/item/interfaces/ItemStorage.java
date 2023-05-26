@@ -14,7 +14,7 @@ public interface ItemStorage {
 
     Item getById(Long id);
 
-    Stream<Item> getAll();
+    List<Item> getAll();
 
     List<ItemDto> getItemByUser(Long userId);
 }

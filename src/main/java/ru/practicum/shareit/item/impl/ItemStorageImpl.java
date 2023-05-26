@@ -6,11 +6,11 @@ import ru.practicum.shareit.item.dto.ItemMapper;
 import ru.practicum.shareit.item.interfaces.ItemStorage;
 import ru.practicum.shareit.item.model.Item;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 @Repository
 public class ItemStorageImpl implements ItemStorage {
@@ -39,8 +39,8 @@ public class ItemStorageImpl implements ItemStorage {
     }
 
     @Override
-    public Stream<Item> getAll() {
-        return storage.values().stream();
+    public List<Item> getAll() {
+        return new ArrayList<>(storage.values());
     }
 
     @Override

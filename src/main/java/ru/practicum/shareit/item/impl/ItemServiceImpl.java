@@ -78,6 +78,7 @@ public class ItemServiceImpl implements ItemService {
         String textC = text.toLowerCase();
 
         return itemStorage.getAll()
+                .stream()
                 .filter(Item::getAvailable)
                 .filter(item -> item.getName().toLowerCase().contains(textC)
                         || item.getDescription().toLowerCase().contains(textC))
