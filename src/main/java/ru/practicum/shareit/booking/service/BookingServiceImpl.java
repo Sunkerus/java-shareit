@@ -128,7 +128,16 @@ public class BookingServiceImpl implements BookingService {
                             ownerId, LocalDateTime.now(), LocalDateTime.now()));
         }
 
-        if (Arrays.stream(BookingStatus.values()).anyMatch(status -> status.name().equals(state))) {
+
+        /* Мне этот вариант реализации показался наиболее рациональным т.к. всё,
+         что мне удалось найти, предполагало наличие цикла или вспомогательных методов
+         подобных EnumUtils.isValidEnum(MyEnum.class, myValue)*/
+
+        boolean checkEnum = Arrays.stream(BookingStatus.values())
+                .anyMatch(status -> status.name()
+                        .equals(state));
+
+        if (checkEnum) {
             return BookingMapper.mapToBookingSufficiencyDto(bookingStorage
                     .findByItemOwnerIdAndStatusOrderByStartDesc(ownerId, BookingStatus.valueOf(state)));
         } else {
@@ -163,6 +172,29 @@ public class BookingServiceImpl implements BookingService {
                     bookingStorage.findByBookerIdAndStartIsBeforeAndEndIsAfterOrderByStartDesc(
                             bookerId, LocalDateTime.now(), LocalDateTime.now()));
         }
+
+
+        //из - за необходимости константных переменных у меня не получилось преобразовать if в switch
+
+        /*switch (BookingPeriod.valueOf(state)) {
+            case(FUTURE):
+                return BookingMapper.mapToBookingSufficiencyDto(
+                        bookingStorage.findAllByBookerIdAndStartIsAfterAndEndIsAfterOrderByStartDesc(
+                                bookerId, LocalDateTime.now(), LocalDateTime.now()));
+                break;
+            case (PAST):
+                return BookingMapper.mapToBookingSufficiencyDto(
+                        bookingStorage.findByBookerIdAndEndIsBeforeOrderByStartDesc(
+                                bookerId, LocalDateTime.now()));
+                break;
+            case(CURRENT):
+                return BookingMapper.mapToBookingSufficiencyDto(
+                        bookingStorage.findByBookerIdAndStartIsBeforeAndEndIsAfterOrderByStartDesc(
+                                bookerId, LocalDateTime.now(), LocalDateTime.now()));
+                break;
+        }
+         */
+
 
         if (Arrays.stream(BookingStatus.values()).anyMatch(status -> status.name().equals(state))) {
             return BookingMapper.mapToBookingSufficiencyDto(bookingStorage

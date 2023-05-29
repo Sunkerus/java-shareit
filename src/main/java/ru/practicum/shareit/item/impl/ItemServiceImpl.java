@@ -91,13 +91,6 @@ public class ItemServiceImpl implements ItemService {
     }
 
     @Override
-    public Item getItemByIdAllField(Long id) {
-        return itemStorage.findById(id)
-                .orElseThrow(() -> new NotFoundException(String.format("Item with ID=%d was not found!", id)));
-    }
-
-
-    @Override
     public List<ItemSufficiencyDto> getItemByUserId(Long userId) {
         List<Item> items = itemStorage.findAllByOwnerIdOrderById(userId);
         List<Long> itemIds = items.stream().map(Item::getId).collect(Collectors.toList());
@@ -139,19 +132,11 @@ public class ItemServiceImpl implements ItemService {
     public CommentDto addNewComment(Long bookerId, Long itemId, CommentDto commentDto) {
         List<Booking> bookings = bookingStorage.findDistinctBookingByBookerIdAndItemId(bookerId, itemId);
 
-        if (bookings.isEmpty()) {
-            throw new IncorrectDataException(
-                    String.format(
-                            "A user with ID=%d cannot leave a comment because he/she didn't rent this item.", bookerId));
-        }
-
-        Booking booking = bookings
-                .stream()
+        Booking booking = bookings.stream()
                 .filter(u -> u.getStatus().name().equals("APPROVED"))
-                .findAny()
-                .orElseThrow(() -> new IncorrectDataException(
+                .findAny().orElseThrow(() -> new IncorrectDataException(
                         String.format(
-                                "The user with ID=%d cannot leave a comment, as he/she has not yet given the item", bookerId)));
+                                "A user with ID=%d cannot leave a comment because he/she didn't rent this item.", bookerId)));
 
 
         if (booking.getEnd().isAfter(LocalDateTime.now())) {
