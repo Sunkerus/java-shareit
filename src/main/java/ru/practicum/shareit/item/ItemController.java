@@ -7,8 +7,10 @@ import ru.practicum.shareit.item.dto.CommentDto;
 import ru.practicum.shareit.item.dto.ItemDto;
 import ru.practicum.shareit.item.dto.ItemSufficiencyDto;
 import ru.practicum.shareit.item.interfaces.ItemService;
+import ru.practicum.shareit.request.OverriddenPageRequest;
 
 import javax.validation.Valid;
+import javax.validation.constraints.Min;
 import javax.validation.constraints.NotNull;
 import java.util.List;
 
@@ -41,14 +43,19 @@ public class ItemController {
 
 
     @GetMapping("/search")
-    public List<ItemDto> getItemsBySearch(@RequestParam String text) {
-        return itemService.getItemBySearch(text);
+    public List<ItemDto> getItemsBySearch(
+            @RequestParam String text,
+            @RequestParam(defaultValue = "0") @Min(0) Integer from,
+            @RequestParam(defaultValue = "10") @Min(1) Integer size) {
+        return itemService.getItemBySearch(text, new OverriddenPageRequest(from, size));
     }
 
 
     @GetMapping
-    public List<ItemSufficiencyDto> getItemByUserId(@RequestHeader("X-Sharer-User-Id") @NotNull Long userId) {
-        return itemService.getItemByUserId(userId);
+    public List<ItemSufficiencyDto> getItemByUserId(@RequestHeader("X-Sharer-User-Id") Long userId,
+                                                    @RequestParam(defaultValue = "0") @Min(0) Integer from,
+                                                    @RequestParam(defaultValue = "10") @Min(1) Integer size) {
+        return itemService.getItemByUserId(userId, new OverriddenPageRequest(from, size));
     }
 
     @PostMapping("/{itemId}/comment")
@@ -56,7 +63,7 @@ public class ItemController {
             @RequestHeader("X-Sharer-User-Id") Long bookerId,
             @PathVariable Long itemId,
             @RequestBody @Valid CommentDto commentDto) {
-        return itemService.addNewComment(bookerId, itemId, commentDto);
+        return itemService.addComment(bookerId, itemId, commentDto);
     }
 
 }

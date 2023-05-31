@@ -8,6 +8,7 @@ import ru.practicum.shareit.item.dto.ItemDto;
 import ru.practicum.shareit.item.dto.ItemSufficiencyDto;
 import ru.practicum.shareit.item.model.Item;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
@@ -42,6 +43,18 @@ public class ItemMapper {
                 last != null ? new ItemSufficiencyDto.BookingDto(last.getId(), last.getBooker().getId()) : null,
                 next != null ? new ItemSufficiencyDto.BookingDto(next.getId(), next.getBooker().getId()) : null,
                 comments != null ? comments : List.of());
+    }
+
+    public static List<ItemDto> mapToDto(Iterable<Item> items) {
+        List<ItemDto> listDtoOfItem = new ArrayList<>();
+        if (items == null) {
+            return List.of();
+        }
+
+        for (Item item : items) {
+            listDtoOfItem.add(toDto(item));
+        }
+        return listDtoOfItem;
     }
 
 
