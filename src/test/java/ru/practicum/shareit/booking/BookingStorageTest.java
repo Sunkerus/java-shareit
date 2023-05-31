@@ -105,8 +105,8 @@ class BookingStorageTest {
 
     @Test
     void findAllByStartDescByBookerIdAndStartIsAfterAndEndIsAfterOrder() {
-        List<Booking> actualBookings = bookingStorage.
-                findAllByBookerIdAndStartIsAfterAndEndIsAfterOrderByStartDesc(
+        List<Booking> actualBookings = bookingStorage
+                .findAllByBookerIdAndStartIsAfterAndEndIsAfterOrderByStartDesc(
                         booker.getId(),
                         LocalDateTime.now(),
                         LocalDateTime.now(),

@@ -41,7 +41,7 @@ class UserServiceImplUnitTest {
     }
 
     @Test
-    void CheckCorrectlyDeleteAllUsers() {
+    void checkCorrectlyDeleteAllUsers() {
         userService.deleteUser(userId);
         verify(userStorage, times(1)).deleteById(userId);
     }
