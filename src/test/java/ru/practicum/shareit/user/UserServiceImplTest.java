@@ -21,7 +21,7 @@ import static org.mockito.Mockito.*;
 
 
 @ExtendWith(MockitoExtension.class)
-class UserServiceImplUnitTest {
+class UserServiceImplTest {
 
     private final UserDto userDto = new UserDto(1L, "Name", "Username@example.com");
     private final User user = new User(1L, "Name", "Username@example.com");

@@ -107,7 +107,7 @@ class BookingControllerTest {
 
 
     @Test
-    void save() throws Exception {
+    void shouldSaveWorkCorrectly() throws Exception {
         when(bookingService.save(anyLong(), any()))
                 .thenReturn(bookingSufficiencyDto);
 
@@ -168,7 +168,7 @@ class BookingControllerTest {
 
 
     @Test
-    void accept() throws Exception {
+    void shouldAcceptWorkCorrectly() throws Exception {
         when(bookingService.approve(anyLong(), anyLong(), anyBoolean())).thenReturn(bookingSufficiencyDto);
 
         mvc.perform(patch("/bookings/{bookingId}", 1L)

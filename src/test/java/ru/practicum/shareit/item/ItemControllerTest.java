@@ -5,10 +5,13 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.context.support.DefaultMessageSourceResolvable;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
+import org.springframework.validation.BindingResult;
+import org.springframework.web.bind.MethodArgumentNotValidException;
 import ru.practicum.shareit.exceptions.ErrorHandler;
 import ru.practicum.shareit.exceptions.ErrorResponse;
 import ru.practicum.shareit.item.dto.CommentDto;
@@ -21,6 +24,7 @@ import javax.validation.ConstraintViolationException;
 import java.nio.charset.StandardCharsets;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
@@ -58,6 +62,14 @@ class ItemControllerTest {
             new ItemSufficiencyDto.BookingDto(1L, 2L),
             new ItemSufficiencyDto.BookingDto(2L, 3L),
             List.of(commentDto));
+
+    private final ItemDto incorrectItem = new ItemDto(
+            1L,
+            null,
+            null,
+            true,
+            2L);
+
     @MockBean
     private ItemService itemService;
     @Autowired
@@ -79,10 +91,10 @@ class ItemControllerTest {
                         .contentType(MediaType.APPLICATION_JSON)
                         .accept(MediaType.APPLICATION_JSON))
                 .andDo(print())
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.id", is(itemDto.getId()), Long.class))
                 .andExpect(jsonPath("$.name", is(itemDto.getName())))
                 .andExpect(jsonPath("$.description", is(itemDto.getDescription())))
+                .andExpect(jsonPath("$.id", is(itemDto.getId()), Long.class))
+                .andExpect(status().isOk())
                 .andExpect(jsonPath("$.available", is(itemDto.getAvailable())));
         verify(itemService, times(1)).addNewItem(userId, itemDto);
     }
@@ -122,9 +134,9 @@ class ItemControllerTest {
                         .accept(MediaType.APPLICATION_JSON))
                 .andDo(print())
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.id", is(itemDto.getId()), Long.class))
                 .andExpect(jsonPath("$.name", is(itemDto.getName())))
                 .andExpect(jsonPath("$.description", is(itemDto.getDescription())))
+                .andExpect(jsonPath("$.id", is(itemDto.getId()), Long.class))
                 .andExpect(jsonPath("$.available", is(itemDto.getAvailable())));
         verify(itemService, times(1)).updateItem(userId, itemId, itemDto);
         verifyNoMoreInteractions(itemService);
@@ -215,4 +227,37 @@ class ItemControllerTest {
         verify(itemService, never()).getItemByUserId(userId, new OverriddenPageRequest(1, 2));
         verify(errorHandler, times(1)).handleConstraintViolationException(any());
     }
+
+    @Test
+    void showldWhenAddNewIncorrectDataThrowsException() throws Exception {
+
+
+        mvc.perform(MockMvcRequestBuilders.post("/items/")
+                        .header(headerShareUserId, userId)
+                        .content(mapper.writeValueAsString(incorrectItem))
+                        .characterEncoding(StandardCharsets.UTF_8)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .accept(MediaType.APPLICATION_JSON))
+                .andDo(print())
+                .andExpect(result -> assertTrue(result.getResolvedException() instanceof MethodArgumentNotValidException))
+                .andExpect(result -> {
+                    MethodArgumentNotValidException exception = (MethodArgumentNotValidException) result.getResolvedException();
+                    assert exception != null;
+                    BindingResult bindingResult = exception.getBindingResult();
+                    List<String> errors = List.of("Name couldn't be blank", "description couldn't be blank");
+                    List<String> actualErrors = bindingResult.getAllErrors().stream()
+                            .map(DefaultMessageSourceResolvable::getDefaultMessage)
+                            .collect(Collectors.toList());
+                    if (!errors.contains(actualErrors.get(0)) && !errors.contains(actualErrors.get(1))) {
+                        throw new AssertionError("Expected " + errors + ", but got " + actualErrors);
+                    }
+                })
+                .andExpect(status().isBadRequest());
+        verify(itemService, never()).addComment(userId, itemId, new CommentDto(
+                1L,
+                null,
+                "Name",
+                LocalDateTime.now()));
+    }
+
 }

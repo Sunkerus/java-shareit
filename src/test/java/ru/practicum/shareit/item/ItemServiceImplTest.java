@@ -2,6 +2,8 @@ package ru.practicum.shareit.item;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.ArgumentCaptor;
+import org.mockito.Captor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
@@ -20,6 +22,7 @@ import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.request.ItemRequest;
 import ru.practicum.shareit.request.OverriddenPageRequest;
 import ru.practicum.shareit.user.User;
+import ru.practicum.shareit.user.interfaces.UserStorage;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -70,10 +73,14 @@ class ItemServiceImplTest {
             "Add comment from user1",
             "Name",
             LocalDateTime.of(2023, 5, 31, 13, 0));
+    @Captor
+    ArgumentCaptor<Item> argCap;
     @InjectMocks
     private ItemServiceImpl itemService;
     @Mock
-    private ItemStorage itemRepository;
+    private ItemStorage itemStorage;
+    @Mock
+    private UserStorage userStorage;
     @Mock
     private BookingStorage bookingStorage;
     @Mock
@@ -81,7 +88,7 @@ class ItemServiceImplTest {
 
     @Test
     void shouldGetItemByIdWhenItemNotFoundThenThrowNotFoundException() {
-        when(itemRepository.findById(anyLong())).thenThrow(NotFoundException.class);
+        when(itemStorage.findById(anyLong())).thenThrow(NotFoundException.class);
 
         assertThrows(NotFoundException.class, () ->
                 itemService.getItemById(itemId, userId));
@@ -93,7 +100,7 @@ class ItemServiceImplTest {
 
     @Test
     void shouldGetItemByUserId() {
-        when(itemRepository.findAllByOwnerIdOrderById(anyLong(), any(Pageable.class))).thenReturn(List.of(item));
+        when(itemStorage.findAllByOwnerIdOrderById(anyLong(), any(Pageable.class))).thenReturn(List.of(item));
         when(commentStorage.findByItemIdInOrderByItemId(anyList())).thenReturn(List.of(comment));
         when(bookingStorage
                 .findAllByItemOwnerIdAndStatusNotOrderByStartDesc(
@@ -113,7 +120,7 @@ class ItemServiceImplTest {
 
     @Test
     void shouldGetItemById() {
-        when(itemRepository.findById(anyLong())).thenReturn(Optional.of(item));
+        when(itemStorage.findById(anyLong())).thenReturn(Optional.of(item));
 
         ItemSufficiencyDto actualItem = itemService.getItemById(itemId, userId);
 
@@ -125,7 +132,7 @@ class ItemServiceImplTest {
 
     @Test
     void shouldGetItemBySearch() {
-        when(itemRepository.searchByText(anyString(), any(Pageable.class))).thenReturn(List.of(item));
+        when(itemStorage.searchByText(anyString(), any(Pageable.class))).thenReturn(List.of(item));
 
         List<ItemDto> actualItems = itemService.getItemBySearch("дрель", new OverriddenPageRequest(0, 2));
 
@@ -147,5 +154,41 @@ class ItemServiceImplTest {
         assertEquals(comment.getText(), actualComment.getText());
     }
 
+    @Test
+    void shouldTestThrowNotFoundExceptionWhenItemisntAppersToOwner() {
+        ItemDto newItem = new ItemDto(
+                1L,
+                "New name",
+                "newDesctiption",
+                true,
+                2L);
+        String message = "Item with id: 1 does not belong with id=2";
+        Long wrongUserId = 2L;
+        when(itemStorage.findById(anyLong())).thenReturn(Optional.of(item));
+
+        NotFoundException exception = assertThrows(NotFoundException.class,
+                () -> itemService.updateItem(wrongUserId, itemId,
+                        newItem));
+        assertEquals(message, exception.getMessage());
+        verify(itemStorage, never()).save(argCap.capture());
+    }
+
+    @Test
+    void shouldThrowNotFoundExceptionWhenItemUserNotFound() {
+
+        when(userStorage.findById(anyLong())).thenReturn(Optional.of(user));
+
+        ItemDto newItem = new ItemDto(
+                33L,
+                "Name",
+                "Description",
+                true,
+                2L);
+
+        NullPointerException ex = assertThrows(NullPointerException.class, () ->
+                itemService.addNewItem(userId, newItem));
+
+        verify(itemStorage, never()).save(item);
+    }
 
 }
