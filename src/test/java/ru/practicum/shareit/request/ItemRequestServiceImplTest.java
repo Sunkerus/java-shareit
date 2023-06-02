@@ -147,8 +147,8 @@ class ItemRequestServiceImplTest {
         Assertions.assertEquals(List.of(requestDto), actualRequests);
 
         verify(userStorage, times(1)).findById(anyLong());
-        verify(itemRequestStorage,times(1)).findAllByRequesterIdOrderByCreatedDesc(anyLong());
-        verify(itemStorage,times(1)).findAllByRequestIdIn(anyList());
+        verify(itemRequestStorage, times(1)).findAllByRequesterIdOrderByCreatedDesc(anyLong());
+        verify(itemStorage, times(1)).findAllByRequestIdIn(anyList());
     }
 
     @Test

@@ -124,7 +124,7 @@ class BookingControllerTest {
                 .getContentAsString(StandardCharsets.UTF_8);
 
         assertEquals(bookingSufficiencyDto, mapper.readValue(result, BookingSufficiencyDto.class));
-        verify(bookingService, times(1)).save(anyLong(),any());
+        verify(bookingService, times(1)).save(anyLong(), any());
     }
 
 
@@ -182,7 +182,7 @@ class BookingControllerTest {
                 .andDo(print())
                 .andExpect(status().isOk());
 
-        verify(bookingService, times(1)).approve(anyLong(),any(),anyBoolean());
+        verify(bookingService, times(1)).approve(anyLong(), any(), anyBoolean());
     }
 
 
@@ -231,7 +231,7 @@ class BookingControllerTest {
 
         assertEquals(List.of(bookingSufficiencyDto), actualResult);
         verify(bookingService, times(1))
-                                    .getByOwner(anyLong(), anyString(), any(OverriddenPageRequest.class));
+                .getByOwner(anyLong(), anyString(), any(OverriddenPageRequest.class));
     }
 
     @Test

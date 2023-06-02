@@ -154,8 +154,8 @@ class ItemServiceImplTest {
         assertEquals(comment.getId(), actualComment.getId());
         assertEquals(comment.getText(), actualComment.getText());
 
-        verify(bookingStorage,times(1)).findDistinctBookingByBookerIdAndItemId(anyLong(), anyLong());
-        verify(commentStorage,times(1)).save(any());
+        verify(bookingStorage, times(1)).findDistinctBookingByBookerIdAndItemId(anyLong(), anyLong());
+        verify(commentStorage, times(1)).save(any());
     }
 
     @Test
@@ -194,8 +194,6 @@ class ItemServiceImplTest {
 
         verify(itemStorage, never()).save(item);
     }
-
-
 
 
 }

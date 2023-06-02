@@ -28,16 +28,17 @@ public class ItemServiceIntegrationalTest {
 
     private final ItemService itemService;
     private final UserService userService;
+
     @Test
     @SneakyThrows
     void shouldAllItemsAddAndReturnsCorrectly() {
 
-        UserDto user = new UserDto(1L,"name","userName@mail.ru");
+        UserDto user = new UserDto(1L, "name", "userName@mail.ru");
         Long userId = userService.createUser(user).getId();
 
         UserDto userTakeDto = userService.getById(userId);
 
-        ItemDto item = new ItemDto(1L,"name","description",true,null);
+        ItemDto item = new ItemDto(1L, "name", "description", true, null);
         itemService.addNewItem(userTakeDto.getId(), item);
 
         ItemSufficiencyDto itemOut = itemService.getItemById(1L, 1L);
@@ -46,7 +47,7 @@ public class ItemServiceIntegrationalTest {
         assertThat(itemOut.getName(), equalTo(item.getName()));
         assertThat(itemOut.getDescription(), equalTo(item.getDescription()));
 
-        List<ItemSufficiencyDto> items = itemService.getItemByUserId(userTakeDto.getId(), new OverriddenPageRequest(0,4));
+        List<ItemSufficiencyDto> items = itemService.getItemByUserId(userTakeDto.getId(), new OverriddenPageRequest(0, 4));
 
         assertThat(items.size(), equalTo(1));
         assertThat(items.get(0).getName(), equalTo(user.getName()));
@@ -60,13 +61,12 @@ public class ItemServiceIntegrationalTest {
     @Test
     @SneakyThrows
     void shouldItemUpdateCorrectly() {
-        UserDto user = new UserDto(1L,"name","userName@mail.ru");
+        UserDto user = new UserDto(1L, "name", "userName@mail.ru");
         Long userId = userService.createUser(user).getId();
 
         UserDto userTakeDto = userService.getById(userId);
 
     }
-
 
 
 }
