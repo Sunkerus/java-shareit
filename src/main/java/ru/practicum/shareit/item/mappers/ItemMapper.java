@@ -51,9 +51,7 @@ public class ItemMapper {
             return List.of();
         }
 
-        for (Item item : items) {
-            listDtoOfItem.add(toDto(item));
-        }
+         items.forEach(item -> listDtoOfItem.add(toDto(item)));
         return listDtoOfItem;
     }
 

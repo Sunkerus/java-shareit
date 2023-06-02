@@ -23,7 +23,5 @@ public interface ItemService {
 
     CommentDto addComment(Long bookerId, Long itemId, CommentDto commentDto);
 
-    Item getItemByIdAllField(Long id);
-
 }
 

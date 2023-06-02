@@ -26,16 +26,13 @@ import static ru.practicum.shareit.booking.enums.BookingStatus.REJECTED;
 class BookingStorageTest {
     private final PageRequest page = PageRequest.of(0, 4);
     @Autowired
-    BookingStorage bookingStorage;
+    private BookingStorage bookingStorage;
     @Autowired
-
-    UserStorage userStorage;
+    private UserStorage userStorage;
     @Autowired
-
-    ItemRequestStorage requestStorage;
+    private ItemRequestStorage requestStorage;
     @Autowired
-
-    ItemStorage itemStorage;
+    private ItemStorage itemStorage;
     private User owner;
     private User booker;
     private Item item;

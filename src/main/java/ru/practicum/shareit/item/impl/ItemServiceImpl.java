@@ -172,10 +172,4 @@ public class ItemServiceImpl implements ItemService {
                 .min(comparing(Booking::getEnd))
                 .orElse(null);
     }
-
-    @Override
-    public Item getItemByIdAllField(Long id) {
-        return itemStorage.findById(id)
-                .orElseThrow(() -> new NotFoundException("Item with " + id + " was not found!"));
-    }
 }

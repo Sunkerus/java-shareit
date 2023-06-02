@@ -53,7 +53,9 @@ class UserServiceImplTest {
         NotFoundException exception = Assertions.assertThrows(NotFoundException.class,
                 () -> userService.updateUser(userDto, userId));
         Assertions.assertEquals("User with this id not found", exception.getMessage());
+
         verify(userStorage, never()).save(user);
+        verify(userStorage, times(1)).findById(anyLong());
     }
 
     @Test
@@ -64,6 +66,9 @@ class UserServiceImplTest {
         UserDto validUser = userService.updateUser(userDto, userId);
 
         Assertions.assertEquals(userDto, validUser);
+
+        verify(userStorage, times(1)).findById(anyLong());
+        verify(userStorage, times(1)).save(any());
     }
 
 
@@ -74,6 +79,8 @@ class UserServiceImplTest {
         List<UserDto> validUsers = userService.getAllUsers();
 
         Assertions.assertEquals(List.of(userDto), validUsers);
+
+        verify(userStorage, times(1)).findAll();
     }
 
     @Test
@@ -83,5 +90,7 @@ class UserServiceImplTest {
         UserDto validUser = userService.getById(userId);
 
         Assertions.assertEquals(userDto, validUser);
+
+        verify(userStorage, times(1)).findById(anyLong());
     }
 }

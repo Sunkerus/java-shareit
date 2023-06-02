@@ -19,7 +19,7 @@ import java.util.List;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
@@ -72,6 +72,7 @@ class ItemRequestControllerTest {
                 .getContentAsString(StandardCharsets.UTF_8);
 
         assertEquals(requestDto, mapper.readValue(response, ItemRequestDto.class));
+        verify(itemRequestService, times(1)).createItemRequest(anyLong(), any());
     }
 
 
@@ -88,6 +89,7 @@ class ItemRequestControllerTest {
                 .getContentAsString(StandardCharsets.UTF_8);
 
         assertEquals(requestDto, mapper.readValue(response, ItemRequestDto.class));
+        verify(itemRequestService, times(1)).getItemRequestById(anyLong(), anyLong());
     }
 
 
@@ -108,6 +110,7 @@ class ItemRequestControllerTest {
         });
 
         assertEquals(List.of(requestDto), actualRequests);
+        verify(itemRequestService, times(1)).getAllItemRequests(0, 2, userId);
     }
 
     @Test
@@ -125,5 +128,6 @@ class ItemRequestControllerTest {
         });
 
         assertEquals(List.of(requestDto), actualRequests);
+        verify(itemRequestService, times(1)).getItemRequestByOwnerId(anyLong());
     }
 }

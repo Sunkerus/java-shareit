@@ -140,6 +140,7 @@ class ItemServiceImplTest {
         assertEquals(item.getId(), actualItems.get(0).getId());
         assertEquals(1, actualItems.size());
         assertEquals(item.getName(), actualItems.get(0).getName());
+        verify(itemStorage, times(1)).searchByText(anyString(), any(Pageable.class));
     }
 
 
@@ -152,6 +153,9 @@ class ItemServiceImplTest {
 
         assertEquals(comment.getId(), actualComment.getId());
         assertEquals(comment.getText(), actualComment.getText());
+
+        verify(bookingStorage,times(1)).findDistinctBookingByBookerIdAndItemId(anyLong(), anyLong());
+        verify(commentStorage,times(1)).save(any());
     }
 
     @Test
@@ -190,5 +194,8 @@ class ItemServiceImplTest {
 
         verify(itemStorage, never()).save(item);
     }
+
+
+
 
 }

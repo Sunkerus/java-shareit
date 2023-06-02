@@ -229,7 +229,7 @@ class ItemControllerTest {
     }
 
     @Test
-    void showldWhenAddNewIncorrectDataThrowsException() throws Exception {
+    void shouldWhenAddNewIncorrectDataThrowsException() throws Exception {
 
 
         mvc.perform(MockMvcRequestBuilders.post("/items/")
@@ -259,5 +259,4 @@ class ItemControllerTest {
                 "Name",
                 LocalDateTime.now()));
     }
-
 }

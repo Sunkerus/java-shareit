@@ -16,6 +16,8 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
 
 @DataJpaTest
 class ItemStorageTest {
@@ -74,7 +76,7 @@ class ItemStorageTest {
 
 
     @Test
-    void shouldfindAllByRequestIdBeCorrectly() {
+    void shouldFindAllByRequestIdBeCorrectlyIdIn() {
         List<Item> actualItems = itemStorage.findAllByRequestIdIn(List.of(itemRequest.getId()));
 
         assertEquals(List.of(firstItem), actualItems);

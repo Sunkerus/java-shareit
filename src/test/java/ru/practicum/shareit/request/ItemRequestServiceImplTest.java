@@ -85,6 +85,10 @@ class ItemRequestServiceImplTest {
         ItemRequestDto actualResult = requestService.getItemRequestById(request.getId(), userId);
 
         Assertions.assertEquals(requestDto, actualResult);
+
+        verify(userStorage, times(1)).findById(anyLong());
+        verify(itemRequestStorage, times(1)).findById(anyLong());
+        verify(itemStorage, times(1)).findAllByRequestId(anyLong());
     }
 
     @Test
@@ -98,6 +102,9 @@ class ItemRequestServiceImplTest {
         Assertions.assertNotNull(actualRequest.getCreated());
         Assertions.assertEquals(requestDto.getId(), actualRequest.getId());
 
+
+        verify(userStorage, times(2)).findById(any());
+        verify(itemRequestStorage, times(1)).save(any());
     }
 
 
@@ -110,6 +117,7 @@ class ItemRequestServiceImplTest {
 
         Assertions.assertEquals("You do not have permission", exception.getMessage());
         verify(itemRequestStorage, never()).save(any(ItemRequest.class));
+        verify(userStorage, times(1)).findById(anyLong());
     }
 
 
@@ -123,6 +131,9 @@ class ItemRequestServiceImplTest {
         List<ItemRequestDto> actualRequests = requestService.getAllItemRequests(0, 2, userId);
 
         Assertions.assertEquals(List.of(requestDto), actualRequests);
+
+        verify(userStorage, times(1)).findById(anyLong());
+        verify(itemRequestStorage, times(1)).findAllByRequesterIdNot(anyLong(), any(OverriddenPageRequest.class));
     }
 
     @Test
@@ -134,6 +145,10 @@ class ItemRequestServiceImplTest {
         List<ItemRequestDto> actualRequests = requestService.getItemRequestByOwnerId(userId);
 
         Assertions.assertEquals(List.of(requestDto), actualRequests);
+
+        verify(userStorage, times(1)).findById(anyLong());
+        verify(itemRequestStorage,times(1)).findAllByRequesterIdOrderByCreatedDesc(anyLong());
+        verify(itemStorage,times(1)).findAllByRequestIdIn(anyList());
     }
 
     @Test
@@ -144,6 +159,8 @@ class ItemRequestServiceImplTest {
         NotFoundException exception = Assertions.assertThrows(NotFoundException.class,
                 () -> requestService.getItemRequestById(request.getId(), userId));
         Assertions.assertEquals("Request with ID=2 was not found.", exception.getMessage());
+
         verify(itemStorage, never()).findAllByRequestId(anyLong());
+        verify(itemRequestStorage, times(1)).findById(anyLong());
     }
 }

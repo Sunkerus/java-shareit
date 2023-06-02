@@ -49,6 +49,8 @@ class UserControllerTest {
         });
 
         assertEquals(List.of(userDto), actualUses);
+
+        verify(userService, times(1)).getAllUsers();
     }
 
 
@@ -78,6 +80,8 @@ class UserControllerTest {
                 .getContentAsString(StandardCharsets.UTF_8);
 
         assertEquals(userDto, mapper.readValue(response, UserDto.class));
+
+        verify(userService, times(1)).updateUser(any(), anyLong());
     }
 
 
@@ -97,6 +101,8 @@ class UserControllerTest {
                 .getContentAsString(StandardCharsets.UTF_8);
 
         assertEquals(userDto, mapper.readValue(response, UserDto.class));
+
+        verify(userService, times(1)).getById(anyLong());
     }
 
     @Test
@@ -115,6 +121,8 @@ class UserControllerTest {
                 .getContentAsString(StandardCharsets.UTF_8);
 
         assertEquals(userDto, mapper.readValue(response, UserDto.class));
+
+        verify(userService, times(1)).createUser(any());
     }
 
 
