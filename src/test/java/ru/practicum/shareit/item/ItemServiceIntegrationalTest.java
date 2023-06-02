@@ -6,6 +6,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.annotation.DirtiesContext;
+import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.shareit.item.dto.ItemDto;
 import ru.practicum.shareit.item.dto.ItemSufficiencyDto;
 import ru.practicum.shareit.item.interfaces.ItemService;
@@ -19,15 +20,17 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.notNullValue;
 
-@SpringBootTest(
-        properties = "db.name=test",
-        webEnvironment = SpringBootTest.WebEnvironment.NONE)
-@RequiredArgsConstructor(onConstructor_ = @Autowired)
+@Transactional
+
+@SpringBootTest
+//ClearUser objects
 @DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_EACH_TEST_METHOD)
+@RequiredArgsConstructor(onConstructor_ = @Autowired)
 public class ItemServiceIntegrationalTest {
 
     private final ItemService itemService;
     private final UserService userService;
+
 
     @Test
     @SneakyThrows
@@ -56,16 +59,8 @@ public class ItemServiceIntegrationalTest {
 
         assertThat(items.size(), equalTo(1));
         assertThat(items.get(0).getName(), equalTo(user.getName()));
-    }
 
-    @Test
-    @SneakyThrows
-    void shouldItemUpdateCorrectly() {
-        UserDto user = new UserDto(1L, "name", "userName@mail.ru");
-        Long userId = userService.createUser(user).getId();
-
-        UserDto userTakeDto = userService.getById(userId);
-
+        assertThat(itemService.getItemBySearch("name", new OverriddenPageRequest(0, 4)), equalTo(List.of(item)));
     }
 
 
