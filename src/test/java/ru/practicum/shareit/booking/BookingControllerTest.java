@@ -274,8 +274,8 @@ class BookingControllerTest {
 
         assertEquals(List.of(bookingSufficiencyDto), actualResult);
 
-        verify(bookingService, times(1)).
-                getByBookerId(anyLong(), anyString(), any(OverriddenPageRequest.class));
+        verify(bookingService, times(1))
+                .getByBookerId(anyLong(), anyString(), any(OverriddenPageRequest.class));
     }
 
 
