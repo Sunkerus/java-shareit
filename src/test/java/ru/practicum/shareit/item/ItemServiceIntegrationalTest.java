@@ -23,9 +23,8 @@ import static org.hamcrest.Matchers.notNullValue;
 @Transactional
 
 @SpringBootTest
-//ClearUser objects
-@DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_EACH_TEST_METHOD)
 @RequiredArgsConstructor(onConstructor_ = @Autowired)
+@DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_EACH_TEST_METHOD)
 public class ItemServiceIntegrationalTest {
 
     private final ItemService itemService;
@@ -42,9 +41,9 @@ public class ItemServiceIntegrationalTest {
         UserDto userTakeDto = userService.getById(userId);
 
         ItemDto item = new ItemDto(1L, "name", "description", true, null);
-        itemService.addNewItem(userTakeDto.getId(), item);
+        item = itemService.addNewItem(userTakeDto.getId(), item);
 
-        ItemSufficiencyDto itemOut = itemService.getItemById(1L, 1L);
+        ItemSufficiencyDto itemOut = itemService.getItemById(item.getId(), 1L);
 
         assertThat(itemOut.getId(), notNullValue());
         assertThat(itemOut.getName(), equalTo(item.getName()));
