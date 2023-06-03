@@ -42,7 +42,7 @@ public class BookingServiceIntegrationTest {
 
 
     @Test
-    void shouldBookingSaveCorrectly() {
+    void shouldBookingServiceWorkCorrectly() {
         User user = new User(1L, "name", "username@example.com");
         User userSecond = new User(2L, "nameSecond", "userSecondname@example.com");
 
@@ -88,6 +88,8 @@ public class BookingServiceIntegrationTest {
         assertEquals(bookingSerivce.getByOwner(user.getId(), "ALL", new OverriddenPageRequest(0, 4)),
                 List.of(BookingMapper.mapToBookingSufficiencyDto(booking)));
 
+        booking.setStatus(BookingStatus.APPROVED);
+        assertEquals(bookingSerivce.approve(user.getId(), booking.getId(), true), BookingMapper.mapToBookingSufficiencyDto(booking));
     }
 
 
