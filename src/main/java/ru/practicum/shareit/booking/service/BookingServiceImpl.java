@@ -1,6 +1,7 @@
 package ru.practicum.shareit.booking.service;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.shareit.booking.dto.BookingDto;
@@ -36,10 +37,10 @@ public class BookingServiceImpl implements BookingService {
     @Transactional
     public BookingSufficiencyDto approve(Long ownerId, Long bookingId, boolean approved) {
         Booking booking = bookingStorage.findById(bookingId).orElseThrow(() -> new NotFoundException(
-                String.format("Booking with ID=%d cannot be found", bookingId)));
+                String.format("Booking with id = %d not found", bookingId)));
 
         if (!booking.getItem().getOwner().getId().equals(ownerId)) {
-            throw new NotFoundException("Only the item owner can approve or reject the rental request.");
+            throw new NotFoundException("Only the owner of an item can approve or deny a rental request.");
         }
 
         if ((!booking.getStatus().equals(BookingStatus.WAITING))) {
@@ -92,7 +93,7 @@ public class BookingServiceImpl implements BookingService {
                         String.format("Booking with ID=%d cannot be found", bookingId)));
 
         if (!booking.getItem().getOwner().getId().equals(userId) && !booking.getBooker().getId().equals(userId)) {
-            throw new NotFoundException("The item should belong to the item owner or the booking author.");
+            throw new NotFoundException("Item must be owned by the owner of the item or the author of the booking");
         }
 
         return BookingMapper.mapToBookingSufficiencyDto(booking);
@@ -100,38 +101,33 @@ public class BookingServiceImpl implements BookingService {
 
 
     @Override
-    public List<BookingSufficiencyDto> getByOwner(Long ownerId, String state) {
+    public List<BookingSufficiencyDto> getByOwner(Long ownerId, String state, Pageable pageable) {
 
         userStorage.findById(ownerId)
                 .orElseThrow(() -> new NotFoundException("User with id" + ownerId + "cannot found"));
 
         if (state == null || BookingPeriod.ALL.name().equals(state)) {
-            List<Booking> booking = bookingStorage.findAllByItemOwnerIdOrderByStartDesc(ownerId);
+            List<Booking> booking = bookingStorage.findAllByItemOwnerIdOrderByStartDesc(ownerId, pageable);
             return BookingMapper.mapToBookingSufficiencyDto(booking);
         }
 
         if (BookingPeriod.FUTURE.name().equals(state)) {
             return BookingMapper.mapToBookingSufficiencyDto(
                     bookingStorage.findByItemOwnerIdAndStartIsAfterAndEndIsAfterOrderByStartDesc(
-                            ownerId, LocalDateTime.now(), LocalDateTime.now()));
+                            ownerId, LocalDateTime.now(), LocalDateTime.now(), pageable));
         }
 
         if (BookingPeriod.PAST.name().equals(state)) {
             return BookingMapper.mapToBookingSufficiencyDto(
                     bookingStorage.findByItemOwnerIdAndEndIsBeforeOrderByStartDesc(
-                            ownerId, LocalDateTime.now()));
+                            ownerId, LocalDateTime.now(), pageable));
         }
 
         if (BookingPeriod.CURRENT.name().equals(state)) {
             return BookingMapper.mapToBookingSufficiencyDto(
                     bookingStorage.findByItemOwnerIdAndStartIsBeforeAndEndIsAfterOrderByStartDesc(
-                            ownerId, LocalDateTime.now(), LocalDateTime.now()));
+                            ownerId, LocalDateTime.now(), LocalDateTime.now(), pageable));
         }
-
-
-        /* Мне этот вариант реализации показался наиболее рациональным т.к. всё,
-         что мне удалось найти, предполагало наличие цикла или вспомогательных методов
-         подобных EnumUtils.isValidEnum(MyEnum.class, myValue)*/
 
         boolean checkEnum = Arrays.stream(BookingStatus.values())
                 .anyMatch(status -> status.name()
@@ -139,66 +135,41 @@ public class BookingServiceImpl implements BookingService {
 
         if (checkEnum) {
             return BookingMapper.mapToBookingSufficiencyDto(bookingStorage
-                    .findByItemOwnerIdAndStatusOrderByStartDesc(ownerId, BookingStatus.valueOf(state)));
+                    .findByItemOwnerIdAndStatusOrderByStartDesc(ownerId, BookingStatus.valueOf(state), pageable));
         } else {
             throw new IncorrectDataException("Unknown state: " + state);
         }
     }
 
     @Override
-    public List<BookingSufficiencyDto> getByBookerId(Long bookerId, String state) {
+    public List<BookingSufficiencyDto> getByBookerId(Long bookerId, String state, Pageable pageable) {
 
         itemStorage.findById(bookerId)
                 .orElseThrow(() -> new NotFoundException("item with id" + bookerId + "cannot found"));
 
         if (state == null || BookingPeriod.ALL.name().equals(state)) {
-            return BookingMapper.mapToBookingSufficiencyDto(bookingStorage.findByBookerIdOrderByStartDesc(bookerId));
+            return BookingMapper.mapToBookingSufficiencyDto(bookingStorage.findByBookerIdOrderByStartDesc(bookerId, pageable));
         }
 
-        if (BookingPeriod.FUTURE.name().equals(state)) {
-            return BookingMapper.mapToBookingSufficiencyDto(
-                    bookingStorage.findAllByBookerIdAndStartIsAfterAndEndIsAfterOrderByStartDesc(
-                            bookerId, LocalDateTime.now(), LocalDateTime.now()));
-        }
-
-        if (BookingPeriod.PAST.name().equals(state)) {
-            return BookingMapper.mapToBookingSufficiencyDto(
-                    bookingStorage.findByBookerIdAndEndIsBeforeOrderByStartDesc(
-                            bookerId, LocalDateTime.now()));
-        }
-
-        if (BookingPeriod.CURRENT.name().equals(state)) {
-            return BookingMapper.mapToBookingSufficiencyDto(
-                    bookingStorage.findByBookerIdAndStartIsBeforeAndEndIsAfterOrderByStartDesc(
-                            bookerId, LocalDateTime.now(), LocalDateTime.now()));
-        }
-
-
-        //из - за необходимости константных переменных у меня не получилось преобразовать if в switch
-
-        /*switch (BookingPeriod.valueOf(state)) {
-            case(FUTURE):
+        switch (state) {
+            case "FUTURE":
                 return BookingMapper.mapToBookingSufficiencyDto(
                         bookingStorage.findAllByBookerIdAndStartIsAfterAndEndIsAfterOrderByStartDesc(
-                                bookerId, LocalDateTime.now(), LocalDateTime.now()));
-                break;
-            case (PAST):
+                                bookerId, LocalDateTime.now(), LocalDateTime.now(), pageable));
+            case "PAST":
                 return BookingMapper.mapToBookingSufficiencyDto(
                         bookingStorage.findByBookerIdAndEndIsBeforeOrderByStartDesc(
-                                bookerId, LocalDateTime.now()));
-                break;
-            case(CURRENT):
+                                bookerId, LocalDateTime.now(), pageable));
+            case "CURRENT":
                 return BookingMapper.mapToBookingSufficiencyDto(
                         bookingStorage.findByBookerIdAndStartIsBeforeAndEndIsAfterOrderByStartDesc(
-                                bookerId, LocalDateTime.now(), LocalDateTime.now()));
-                break;
+                                bookerId, LocalDateTime.now(), LocalDateTime.now(), pageable));
         }
-         */
 
 
         if (Arrays.stream(BookingStatus.values()).anyMatch(status -> status.name().equals(state))) {
             return BookingMapper.mapToBookingSufficiencyDto(bookingStorage
-                    .findByBookerIdAndStatusOrderByStartDesc(bookerId, BookingStatus.valueOf(state)));
+                    .findByBookerIdAndStatusOrderByStartDesc(bookerId, BookingStatus.valueOf(state), pageable));
         } else {
             throw new IncorrectDataException("Unknown state: " + state);
         }

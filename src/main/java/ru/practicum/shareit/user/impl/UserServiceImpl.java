@@ -44,7 +44,7 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public UserDto getUserById(Long userId) {
+    public UserDto getById(Long userId) {
         return UserMapper.toDto(userStorage.findById(userId)
                 .orElseThrow(() -> new NotFoundException("User with this id not found")));
     }

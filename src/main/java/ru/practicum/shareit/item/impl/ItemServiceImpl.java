@@ -1,6 +1,7 @@
 package ru.practicum.shareit.item.impl;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.shareit.booking.enums.BookingStatus;
@@ -18,6 +19,8 @@ import ru.practicum.shareit.item.mappers.CommentMapper;
 import ru.practicum.shareit.item.mappers.ItemMapper;
 import ru.practicum.shareit.item.model.Comment;
 import ru.practicum.shareit.item.model.Item;
+import ru.practicum.shareit.request.ItemRequest;
+import ru.practicum.shareit.request.interfaces.ItemRequestStorage;
 import ru.practicum.shareit.user.User;
 import ru.practicum.shareit.user.interfaces.UserStorage;
 
@@ -42,12 +45,18 @@ public class ItemServiceImpl implements ItemService {
 
     private final CommentStorage commentStorage;
 
+    private final ItemRequestStorage itemRequestStorage;
+
     @Override
     @Transactional
     public ItemDto addNewItem(Long userId, ItemDto itemDto) {
         Item item = ItemMapper.toItem(itemDto);
         User user = userStorage.findById(userId).orElseThrow(() -> new NotFoundException("User with this id didn't found"));
+        ItemRequest itemRequest = itemDto.getRequestId() != null ?
+                itemRequestStorage.findById(itemDto.getRequestId()).orElse(null) : null;
+
         item.setOwner(user);
+        item.setRequest(itemRequest);
 
         return ItemMapper.toDto(itemStorage.save(item));
     }
@@ -56,11 +65,11 @@ public class ItemServiceImpl implements ItemService {
     @Transactional
     public ItemDto updateItem(Long userId, Long itemId, ItemDto itemDto) {
         Item item = itemStorage.findById(itemId)
-                .orElseThrow(() -> new NotFoundException(String.format("Item with ID=%d was not found!", itemId)));
+                .orElseThrow(() -> new NotFoundException(String.format("Item with id=%d not found", itemId)));
 
         if (!item.getOwner().getId().equals(userId)) {
             throw new NotFoundException(
-                    String.format("Вещь с ID=%d не принадлежит пользователю с ID=%d", itemId, userId));
+                    String.format("Item with id: %d does not belong with id=%d", itemId, userId));
         }
 
         if (itemDto.getName() != null) {
@@ -91,8 +100,8 @@ public class ItemServiceImpl implements ItemService {
     }
 
     @Override
-    public List<ItemSufficiencyDto> getItemByUserId(Long userId) {
-        List<Item> items = itemStorage.findAllByOwnerIdOrderById(userId);
+    public List<ItemSufficiencyDto> getItemByUserId(Long userId, Pageable pageable) {
+        List<Item> items = itemStorage.findAllByOwnerIdOrderById(userId, pageable);
         List<Long> itemIds = items.stream().map(Item::getId).collect(Collectors.toList());
 
         Map<Long, List<Comment>> comments = commentStorage.findByItemIdInOrderByItemId(itemIds)
@@ -116,12 +125,12 @@ public class ItemServiceImpl implements ItemService {
     }
 
     @Override
-    public List<ItemDto> getItemBySearch(String text) {
+    public List<ItemDto> getItemBySearch(String text, Pageable pageable) {
         if (text.isBlank()) {
             return List.of();
         }
 
-        return itemStorage.searchByText(text.toLowerCase())
+        return itemStorage.searchByText(text.toLowerCase(), pageable)
                 .stream()
                 .map(ItemMapper::toDto)
                 .collect(Collectors.toList());
@@ -129,10 +138,9 @@ public class ItemServiceImpl implements ItemService {
 
     @Override
     @Transactional
-    public CommentDto addNewComment(Long bookerId, Long itemId, CommentDto commentDto) {
-        List<Booking> bookings = bookingStorage.findDistinctBookingByBookerIdAndItemId(bookerId, itemId);
-
-        Booking booking = bookings.stream()
+    public CommentDto addComment(Long bookerId, Long itemId, CommentDto commentDto) {
+        Booking booking = bookingStorage.findDistinctBookingByBookerIdAndItemId(bookerId, itemId)
+                .stream()
                 .filter(u -> u.getStatus().name().equals("APPROVED"))
                 .findAny().orElseThrow(() -> new IncorrectDataException(
                         String.format(
