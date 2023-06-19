@@ -110,4 +110,14 @@ public class BookingController {
         return bookingClient.approve(ownerId, bookingId, approved);
     }
 
+    protected static void validateBooking(BookItemRequestDto requestDto) throws DataException {
+        if (requestDto.getEnd().isBefore(requestDto.getStart())) {
+            throw new DataException("The booking end date cannot be before the booking start date.");
+        }
+
+        if (requestDto.getEnd().isEqual(requestDto.getStart())) {
+            throw new DataException("The booking end date and the booking start date cannot be the same.");
+        }
+
+    }
 }

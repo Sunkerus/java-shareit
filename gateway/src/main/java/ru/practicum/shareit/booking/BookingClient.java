@@ -14,11 +14,12 @@ import ru.practicum.shareit.exceptions.DataException;
 
 import java.util.Map;
 
+import static ru.practicum.shareit.booking.BookingController.validateBooking;
+
 @Service
 public class BookingClient extends BaseClient {
 
     private static final String API_PREFIX = "/bookings";
-    private BookingController bookingController;
 
     @Autowired
     public BookingClient(@Value("${shareit-server.url}") String serverUrl, RestTemplateBuilder builder) {
@@ -50,8 +51,7 @@ public class BookingClient extends BaseClient {
     }
 
     public ResponseEntity<Object> approve(Long ownerId, Long bookingId, boolean approved) {
-        Map<String, Object> parameters = Map.of("approved", approved);
-        return patch("/" + bookingId + "?approved={approved}", ownerId, parameters);
+        return patch("/" + bookingId + "?approved={" + approved + "}", ownerId, null);
     }
 
     public ResponseEntity<Object> getBookingsByOwner(Long ownerId, BookingState state, Integer from, Integer size) {
@@ -63,15 +63,5 @@ public class BookingClient extends BaseClient {
         return get("/owner?state={state}&from={from}&size={size}", ownerId, parameters);
     }
 
-    void validateBooking(BookItemRequestDto requestDto) {
-        if (requestDto.getEnd().isBefore(requestDto.getStart())) {
-            throw new DataException("The booking end date cannot be before the booking start date.");
-        }
-
-        if (requestDto.getEnd().isEqual(requestDto.getStart())) {
-            throw new DataException("The booking end date and the booking start date cannot be the same.");
-        }
-
-    }
 
 }
