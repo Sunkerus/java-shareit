@@ -5,7 +5,6 @@ import org.springframework.web.bind.annotation.*;
 import ru.practicum.shareit.user.dto.UserDto;
 import ru.practicum.shareit.user.interfaces.UserService;
 
-import javax.validation.Valid;
 import java.util.List;
 
 
@@ -17,7 +16,7 @@ public class UserController {
     private final UserService userService;
 
     @PostMapping
-    public UserDto creatUser(@Valid @RequestBody UserDto userDto) {
+    public UserDto creatUser(@RequestBody UserDto userDto) {
         return userService.createUser(userDto);
     }
 

@@ -5,8 +5,6 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import ru.practicum.shareit.request.dto.ItemRequestDto;
 
-import javax.validation.Valid;
-import javax.validation.constraints.Min;
 import java.util.List;
 
 @RestController
@@ -24,8 +22,8 @@ public class ItemRequestController {
     @GetMapping("/all")
     public List<ItemRequestDto> getAllItemRequests(
             @RequestHeader("X-Sharer-User-Id") Long userId,
-            @RequestParam(defaultValue = "0") @Min(0) Integer from,
-            @RequestParam(defaultValue = "10") @Min(1) Integer size) {
+            @RequestParam(defaultValue = "0") Integer from,
+            @RequestParam(defaultValue = "10") Integer size) {
         return itemRequestService.getAllItemRequests(from, size, userId);
     }
 
@@ -39,7 +37,7 @@ public class ItemRequestController {
     @PostMapping
     public ItemRequestDto createItemRequest(
             @RequestHeader("X-Sharer-User-Id") Long userId,
-            @RequestBody @Valid ItemRequestDto itemRequestDto) {
+            @RequestBody ItemRequestDto itemRequestDto) {
         return itemRequestService.createItemRequest(userId, itemRequestDto);
     }
 

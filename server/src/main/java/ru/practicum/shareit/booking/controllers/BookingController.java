@@ -8,8 +8,6 @@ import ru.practicum.shareit.booking.dto.BookingSufficiencyDto;
 import ru.practicum.shareit.booking.interfaces.BookingService;
 import ru.practicum.shareit.request.OverriddenPageRequest;
 
-import javax.validation.Valid;
-import javax.validation.constraints.Min;
 import java.util.List;
 
 
@@ -25,7 +23,7 @@ public class BookingController {
     @PostMapping
     public BookingSufficiencyDto save(
             @RequestHeader("X-Sharer-User-Id") Long userId,
-            @RequestBody @Valid BookingDto bookingDto) {
+            @RequestBody BookingDto bookingDto) {
         return bookingService.save(userId, bookingDto);
     }
 
@@ -49,8 +47,8 @@ public class BookingController {
     public List<BookingSufficiencyDto> getByOwner(
             @RequestHeader("X-Sharer-User-Id") Long ownerId,
             @RequestParam(defaultValue = "ALL") String state,
-            @RequestParam(defaultValue = "0") @Min(0) Integer from,
-            @RequestParam(defaultValue = "20") @Min(1) Integer size) {
+            @RequestParam(defaultValue = "0") Integer from,
+            @RequestParam(defaultValue = "20") Integer size) {
         return bookingService.getByOwner(ownerId, state, new OverriddenPageRequest(from, size));
     }
 
@@ -58,8 +56,8 @@ public class BookingController {
     public List<BookingSufficiencyDto> getBookingsByUBooker(
             @RequestHeader("X-Sharer-User-Id") Long bookerId,
             @RequestParam(defaultValue = "ALL") String state,
-            @RequestParam(defaultValue = "0") @Min(0) Integer from,
-            @RequestParam(defaultValue = "20") @Min(1) Integer size) {
+            @RequestParam(defaultValue = "0") Integer from,
+            @RequestParam(defaultValue = "20") Integer size) {
         return bookingService.getByBookerId(bookerId, state, new OverriddenPageRequest(from, size));
     }
 

@@ -16,11 +16,11 @@ public class BookItemRequestDto {
 
     private long itemId;
 
-    @FutureOrPresent(message = "The booking date cannot be in the past.")
-    @NotNull(message = "The booking start date cannot be empty.")
+    @NotNull(message = "start date cannot be null")
+    @FutureOrPresent(message = "the start time must be future or present")
     private LocalDateTime start;
 
+    @NotNull(message = "The end date cannot be null")
     @Future(message = "The end date of the booking cannot be in the past.")
-    @NotNull(message = "The booking end date cannot be empty.")
     private LocalDateTime end;
 }

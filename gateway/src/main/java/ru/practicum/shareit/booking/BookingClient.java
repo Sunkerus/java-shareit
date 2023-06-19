@@ -17,6 +17,7 @@ import java.util.Map;
 @Service
 public class BookingClient extends BaseClient {
 
+    private BookingController bookingController;
     private static final String API_PREFIX = "/bookings";
 
     @Autowired
@@ -39,8 +40,8 @@ public class BookingClient extends BaseClient {
     }
 
 
-    public ResponseEntity<Object> bookItem(long userId, BookItemRequestDto requestDto) {
-        validateBooking(requestDto);
+    public ResponseEntity<Object> bookItem(long userId, BookItemRequestDto requestDto) throws DataException {
+        bookingController.validateBooking(requestDto);
         return post("", userId, requestDto);
     }
 
@@ -62,14 +63,4 @@ public class BookingClient extends BaseClient {
         return get("/owner?state={state}&from={from}&size={size}", ownerId, parameters);
     }
 
-    private void validateBooking(BookItemRequestDto requestDto) {
-        if (requestDto.getEnd().isBefore(requestDto.getStart())) {
-            throw new DataException("The booking end date cannot be before the booking start date.");
-        }
-
-        if (requestDto.getEnd().isEqual(requestDto.getStart())) {
-            throw new DataException("The booking end date and the booking start date cannot be the same.");
-        }
-
-    }
 }

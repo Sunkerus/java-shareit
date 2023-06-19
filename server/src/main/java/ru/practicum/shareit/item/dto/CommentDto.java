@@ -4,7 +4,6 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import javax.validation.constraints.NotBlank;
 import java.time.LocalDateTime;
 
 @Data
@@ -14,7 +13,6 @@ public class CommentDto {
 
     private Long id;
 
-    @NotBlank(message = "text couldn't be empty")
     private String text;
 
     private String authorName;

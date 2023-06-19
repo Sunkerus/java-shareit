@@ -24,7 +24,27 @@ public class BookingController {
     private final BookingClient bookingClient;
 
     /**
-     * Эндпоинт по получению списка всех бронирования пользователя, кто забронировал товар.
+     * Эндпоинт по получению списка всех бронирований владельца товара.
+     *
+     * @param ownerId    id пользователя
+     * @param stateParam значения: ALL, CURRENT, PAST, FUTURE, WAITING, REJECTED
+     * @return Возвралщает список бронирования.
+     */
+    @GetMapping("/owner")
+    public ResponseEntity<Object> getBookingsByOwner(
+            @RequestHeader("X-Sharer-User-Id") Long ownerId,
+            @RequestParam(name = "state", defaultValue = "all") String stateParam,
+            @RequestParam(defaultValue = "0") @Min(0) Integer from,
+            @RequestParam(defaultValue = "10") @Min(1) @Max(100) Integer size) {
+        BookingState state = BookingState.from(stateParam)
+                .orElseThrow(() -> new DataException("Unknown state: " + stateParam));
+        log.info("Get booking by Owner with state {}, ownerId={}, from={}, size={}", stateParam, ownerId, from, size);
+        return bookingClient.getBookingsByOwner(ownerId, state, from, size);
+    }
+
+
+    /**
+     * Эндпонит получения списка пользователей, бронировавших товар.
      *
      * @param userId     id пользователя
      * @param stateParam параметр может принимать заначения: ALL, CURRENT, PAST, FUTURE, WAITING, REJECTED
@@ -42,7 +62,7 @@ public class BookingController {
     }
 
     /**
-     * Эндпонит по добовлению бронированию.
+     * Эндпонит для добалвения бронирования
      *
      * @param userId     id пользователя бронирующий продукт.
      * @param requestDto данные о вбронирования.
@@ -90,22 +110,16 @@ public class BookingController {
         return bookingClient.approve(ownerId, bookingId, approved);
     }
 
-    /**
-     * Эндпоинт по получению списка всех бронирования владельца товара.
-     *
-     * @param ownerId    id пользователя
-     * @param stateParam параметр может принимать заначения: ALL, CURRENT, PAST, FUTURE, WAITING, REJECTED
-     * @return Возвралщает список бронирования.
-     */
-    @GetMapping("/owner")
-    public ResponseEntity<Object> getBookingsByOwner(
-            @RequestHeader("X-Sharer-User-Id") Long ownerId,
-            @RequestParam(name = "state", defaultValue = "all") String stateParam,
-            @RequestParam(defaultValue = "0") @Min(0) Integer from,
-            @RequestParam(defaultValue = "10") @Min(1) @Max(100) Integer size) {
-        BookingState state = BookingState.from(stateParam)
-                .orElseThrow(() -> new DataException("Unknown state: " + stateParam));
-        log.info("Get booking by Owner with state {}, ownerId={}, from={}, size={}", stateParam, ownerId, from, size);
-        return bookingClient.getBookingsByOwner(ownerId, state, from, size);
+    protected void validateBooking(BookItemRequestDto requestDto) {
+        if (requestDto.getEnd().isBefore(requestDto.getStart())) {
+            throw new DataException("The booking end date cannot be before the booking start date.");
+        }
+
+        if (requestDto.getEnd().isEqual(requestDto.getStart())) {
+            throw new DataException("The booking end date and the booking start date cannot be the same.");
+        }
+
     }
+
+
 }

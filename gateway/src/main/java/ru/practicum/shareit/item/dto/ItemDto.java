@@ -8,13 +8,13 @@ import javax.validation.constraints.NotNull;
 @Data
 public class ItemDto {
 
-    @NotBlank(message = "ThatName cannot be Blank")
+    @NotBlank(message = "Name couldn't be blank")
     private String name;
 
-    @NotBlank(message = "The description cannot be Blank")
+    @NotBlank(message = "description couldn't be blank")
     private String description;
 
-    @NotNull(message = "Available cannot be Null")
+    @NotNull(message = "Aviable status couldn't be null")
     private Boolean available;
 
     private Long requestId;
