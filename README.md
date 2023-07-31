@@ -1,3 +1,7 @@
 # java-shareit
 
-Template repository for Shareit project.
+App for sharing anything with REST API
+
+###Plan for future improvements
+- Project may be connect with telegram bot or other platform
+- Starts in docker contaiter
